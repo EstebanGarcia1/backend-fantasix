@@ -9,7 +9,8 @@ const prisma = new PrismaClient();
 const port = process.env.PORT || 3001;  
 
 // 🔍 Imprime la URL de la base de datos para verificar que es correcta
-console.log("🔍 DATABASE_URL en uso:", process.env.DATABASE_URL);
+console.log("🔍 DATABASE_URL usada:", process.env.DATABASE_URL);
+
 
 app.use(cors());
 app.use(express.json());
@@ -23,14 +24,13 @@ app.get("/", (req, res) => {
 
 async function testDBConnection() {
   try {
+      await prisma.$disconnect();  // 🔥 Cierra la conexión antes de probar
       await prisma.$connect();
       console.log("✅ Conectado a la base de datos correctamente");
   } catch (error) {
       console.error("❌ Error conectando a la base de datos:", error);
-      process.exit(1); // ❌ Detener el servidor si la DB no está accesible
   }
 }
-testDBConnection();
 
 app.listen(port, () => {
   console.log(`🔥 Servidor corriendo en http://localhost:${port}`);
