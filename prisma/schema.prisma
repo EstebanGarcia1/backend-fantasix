@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  username String  @unique
+  password String
+  isAdmin  Boolean @default(false)
+}
+
+model Team {
+  id       String   @id @default(uuid())
+  name     String   @unique
+  region   String
+  matchesA Match[]  @relation("HomeTeam")
+  matchesB Match[]  @relation("AwayTeam")
+  players  Player[]
+}
+
+model Player {
+  id            String       @id @default(uuid())
+  nickname      String       @unique
+  role          String
+  teamId        String?
+  points        Int          @default(0)
+  participantId String?
+  photo         String
+  draftEntries  Draft[]      @relation("PlayerDraft")
+  pickedBy      Participant? @relation("ParticipantPicks", fields: [participantId], references: [id])
+  team          Team?        @relation(fields: [teamId], references: [id])
+}
+
+model Participant {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  photo        String?
+  draftEntries Draft[]  @relation("ParticipantDraft")
+  picks        Player[] @relation("ParticipantPicks")
+}
+
+model Draft {
+  id            String      @id @default(uuid())
+  participantId String
+  playerId      String
+  timestamp     DateTime    @default(now())
+  participant   Participant @relation("ParticipantDraft", fields: [participantId], references: [id])
+  player        Player      @relation("PlayerDraft", fields: [playerId], references: [id])
+}
+
+model Match {
+  id      String   @id @default(uuid())
+  date    DateTime
+  scoreA  Int?
+  scoreB  Int?
+  teamAId String
+  teamBId String
+  teamA   Team     @relation("HomeTeam", fields: [teamAId], references: [id])
+  teamB   Team     @relation("AwayTeam", fields: [teamBId], references: [id])
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  message   String
+  createdAt DateTime @default(now())
+  eventType String
+}
