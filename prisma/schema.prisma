@@ -67,6 +67,6 @@ model Match {
 model SystemLog {
   id        String   @id @default(uuid())
   message   String
+  eventType String   // ✅ Debe ser String, no un objeto
   createdAt DateTime @default(now())
-  eventType String
 }
